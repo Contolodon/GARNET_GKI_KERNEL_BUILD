@@ -35,6 +35,7 @@ jobs:
           cd kernel
 
           make O=out ARCH=arm64 vendor/garnet_GKI.config
+          make O=out ARCH=arm64 olddefconfig
 
           make -j$(nproc) \
             O=out \
