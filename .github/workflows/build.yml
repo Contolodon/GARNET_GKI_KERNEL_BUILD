@@ -34,7 +34,7 @@ jobs:
           export PATH=$GITHUB_WORKSPACE/clang/bin:$PATH
           cd kernel
 
-          make O=out ARCH=arm64 garnet_GKI_defconfig
+          make O=out ARCH=arm64 vendor/garnet_GKI.config
 
           make -j$(nproc) \
             O=out \
