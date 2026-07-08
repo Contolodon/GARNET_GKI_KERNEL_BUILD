@@ -1,0 +1,51 @@
+name: Build Garnet Kernel
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install packages
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            git bc bison flex \
+            libssl-dev make \
+            libc6-dev libncurses5-dev \
+            libncursesw5-dev \
+            curl zip unzip python3
+
+      - name: Clone Kernel
+        run: |
+          git clone --depth=1 -b lineage-21 https://github.com/LineageOS/android_kernel_xiaomi_sm7435 kernel
+
+      - name: Download Proton Clang
+        run: |
+          git clone --depth=1 https://github.com/kdrag0n/proton-clang clang
+
+      - name: Build
+        run: |
+          export PATH=$GITHUB_WORKSPACE/clang/bin:$PATH
+          cd kernel
+
+          make O=out ARCH=arm64 garnet_GKI_defconfig
+
+          make -j$(nproc) \
+            O=out \
+            ARCH=arm64 \
+            CC=clang \
+            LLVM=1 \
+            LLVM_IAS=1
+
+      - name: Upload Image
+        uses: actions/upload-artifact@v4
+        with:
+          name: Kernel
+          path: |
+            kernel/out/arch/arm64/boot/Image*
